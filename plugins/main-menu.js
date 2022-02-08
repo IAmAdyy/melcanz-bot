@@ -2,11 +2,14 @@ let fs = require('fs')
 let path = require('path')
 let moment = require('moment-timezone')
 const defaultMenu = {
-  before: `
-%readmore`.trimStart(),
-  header: '┌「 *%category* 」',
-  body: '├ %cmd %islimit %isPremium',
-  footer: '└────\n',
+  before: `*Info:*
+(🔖) Features without anything [means FREE]
+(🔱) Features with limit
+(⚜️) Features for premium
+`.trimStart(),
+  header: '• Menu *%category*',
+  body: '-> %islimit %isPremium %cmd',
+  footer: '\n',
   after: `
 `,
 }
@@ -124,7 +127,7 @@ let handler = async (m, { conn, usedPrefix: _p, text, isOwner, command }) => {
     }
     if (teks == 'jadibot') {
       if (!db.data.settings[conn.user.jid].jadibot) {
-        m.reply('mau ngapain?')
+        m.reply('jadibot nda on')
         throw 0
       }
       tags = {
@@ -171,13 +174,13 @@ let handler = async (m, { conn, usedPrefix: _p, text, isOwner, command }) => {
       }
       else {
         let array = Object.keys(arrayMenuFilter).map(v => ({
-          title: arrayMenuFilter[v],
-          description: '',
+          title: `🌹 MENU ${arrayMenuFilter[v].toUpperCase()},
+          description: `🎭 semuanya fitur ${arrayMenuFilter[v]}`,
           rowId: `.m ${arrayMenuFilter[v]}`
         }))
         let button = {
-          buttonText: 'klik disini',
-          description: `hai @${m.sender.split`@`[0]}, klik untuk melihat daftar perintah`,
+          buttonText: 'Click here',
+          description: `Yo @${m.sender.split`@`[0]}, Im AdiiBot\nSee all features on button below`,
           title: 'menu'
         }
         return conn.sendListM(m.chat, button, array, m)
@@ -213,8 +216,8 @@ let handler = async (m, { conn, usedPrefix: _p, text, isOwner, command }) => {
           ...help.filter(menu => menu.tags && menu.tags.includes(tag) && menu.help).map(menu => {
             return menu.help.map(help => {
               return body.replace(/%cmd/g, menu.prefix ? help : '%p' + help)
-                .replace(/%islimit/g, menu.limit ? '(Limit)' : '')
-                .replace(/%isPremium/g, menu.premium ? '(Premium)' : '')
+                .replace(/%islimit/g, menu.limit ? '(🔱)' : '(🔖)')
+                .replace(/%isPremium/g, menu.premium ? '(⚜️)' : '(🔖)')
                 .trim()
             }).join('\n')
           }),
@@ -236,15 +239,15 @@ let handler = async (m, { conn, usedPrefix: _p, text, isOwner, command }) => {
       readmore: readMore
     }
     text = text.replace(new RegExp(`%(${Object.keys(replace).sort((a, b) => b.length - a.length).join`|`})`, 'g'), (_, name) => '' + replace[name])
-    await conn.sendButtonLoc(m.chat, fla + encodeURIComponent(teks), text.trim(), `${ucapan()}`, 'donasi', '.donasi')
+    await conn.sendButtonLoc(m.chat, global.menunya, text.trim(), `adiibot`, 'Back to Menu', '.m')
   } catch (e) {
     // conn.reply(m.chat, 'Maaf, menu sedang error', m)
     throw e
   }
 }
-handler.help = ['menu']
+handler.help = ['m']
 handler.tags = ['main']
-handler.command = /^(m|menu|help|\?)$/i
+handler.command = /^(m)$/i
 
 module.exports = handler
 
@@ -265,7 +268,7 @@ function ucapan() {
     res = "selamat pagi"
   }
   if (time > 10) {
-    res = "selamat sialng"
+    res = "selamat siang"
   }
   if (time >= 15) {
     res = "selamat sore"
