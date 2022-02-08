@@ -3,4 +3,8 @@ function handler(m) {
 
 }
 
+handler.command = ['menu']
+handler.help = ['menu']
+handler.tags = ['']
+
 module.exports = handler
